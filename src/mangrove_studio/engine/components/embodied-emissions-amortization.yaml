@@ -54,11 +54,11 @@ component:
       required: true
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "{name}"
       output_unit: tCO₂e
       operator: "({ee_slug} * {days_slug}) / ({amortization_rate_slug} * 365)"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Total Embodied Emissions"
         output_unit: "kgCO₂e"
         data_point_type: "{ee_slug}"

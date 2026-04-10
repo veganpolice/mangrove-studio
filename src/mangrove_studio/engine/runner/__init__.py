@@ -45,7 +45,7 @@ def evaluate_node(node: dict, ctx: RunContext) -> float | list[float]:
 
     Returns the computed value (float or list of floats for per-event).
     """
-    children = node.get("nexus_nodes_attributes", [])
+    children = node.get("mangrove_nodes", [])
     operator = node.get("operator")
     dpt = node.get("data_point_type")
     constant = node.get("constant")
@@ -247,15 +247,15 @@ def run_model(node_tree: dict, data: dict[str, float | list[float]]) -> dict[str
     """Run a complete model, returning all calculated outputs.
 
     Args:
-        node_tree: The model's nexus_nodes_attributes dict
-            (e.g., {"nexus_nodes_attributes": [...]})
+        node_tree: The model's mangrove_nodes dict
+            (e.g., {"mangrove_nodes": [...]})
         data: Input data mapping DPT slugs to values
 
     Returns:
         Dict of calculated DPT slugs to their computed values
     """
     ctx = RunContext(data)
-    roots = node_tree.get("nexus_nodes_attributes", [])
+    roots = node_tree.get("mangrove_nodes", [])
     for root in roots:
         evaluate_node(root, ctx)
     return ctx.outputs

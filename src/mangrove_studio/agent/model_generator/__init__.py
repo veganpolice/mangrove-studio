@@ -74,12 +74,12 @@ component:
       description: Has a default value
       default: "some-value"
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "Root Node {param}"
       output_unit: tCO₂e
       operator: product|summation|quotient|difference
       data_point_type: "calculated-{param}-output"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Child leaf"
         output_unit: kWh
         data_point_type: "{param}-slug"

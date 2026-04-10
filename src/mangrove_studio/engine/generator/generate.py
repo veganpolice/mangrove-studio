@@ -72,7 +72,7 @@ def process_node(node: dict, params: dict) -> dict:
     """Recursively process a node tree, substituting parameter placeholders."""
     result = {}
     for key, value in node.items():
-        if key == "nexus_nodes_attributes":
+        if key == "mangrove_nodes":
             result[key] = [process_node(child, params) for child in value]
         elif isinstance(value, str):
             result[key] = substitute_placeholders(value, params)
@@ -86,9 +86,9 @@ def generate_component_yaml(component: dict, param_values: dict) -> dict:
     params = resolve_parameters(component, param_values)
     node_tree = copy.deepcopy(component["node_tree"])
     return {
-        "nexus_nodes_attributes": [
+        "mangrove_nodes": [
             process_node(node, params)
-            for node in node_tree["nexus_nodes_attributes"]
+            for node in node_tree["mangrove_nodes"]
         ]
     }
 
@@ -116,22 +116,22 @@ def _build_instance_lookup(composition: dict) -> dict:
 
 
 def _resolve_tree_entry(entry: dict, instances: dict) -> list[dict]:
-    """Resolve a single tree entry into nexus node(s)."""
+    """Resolve a single tree entry into Mangrove node(s)."""
     if "component" in entry:
         iid = entry["component"]
         if iid not in instances:
             raise ValueError(f"Tree references unknown instance_id '{iid}'")
         component, params = instances[iid]
         result = generate_component_yaml(component, params)
-        nodes = result["nexus_nodes_attributes"]
+        nodes = result["mangrove_nodes"]
 
         if "children" in entry:
             extra_children = []
             for child_entry in entry["children"]:
                 extra_children.extend(_resolve_tree_entry(child_entry, instances))
             for node in nodes:
-                existing = node.get("nexus_nodes_attributes", [])
-                node["nexus_nodes_attributes"] = existing + extra_children
+                existing = node.get("mangrove_nodes", [])
+                node["mangrove_nodes"] = existing + extra_children
 
         return nodes
 
@@ -142,7 +142,7 @@ def _resolve_tree_entry(entry: dict, instances: dict) -> list[dict]:
             child_nodes = []
             for child_entry in entry["children"]:
                 child_nodes.extend(_resolve_tree_entry(child_entry, instances))
-            node["nexus_nodes_attributes"] = child_nodes
+            node["mangrove_nodes"] = child_nodes
 
         return [node]
 
@@ -157,7 +157,7 @@ def generate_composition_yaml(composition: dict) -> str:
     for entry in composition["tree"]:
         root_nodes.extend(_resolve_tree_entry(entry, instances))
 
-    output = {"nexus_nodes_attributes": root_nodes}
+    output = {"mangrove_nodes": root_nodes}
     return yaml.dump(
         output,
         default_flow_style=False,
@@ -172,6 +172,6 @@ def collect_dpt_slugs(node: dict) -> set[str]:
     slugs = set()
     if "data_point_type" in node:
         slugs.add(node["data_point_type"])
-    for child in node.get("nexus_nodes_attributes", []):
+    for child in node.get("mangrove_nodes", []):
         slugs.update(collect_dpt_slugs(child))
     return slugs

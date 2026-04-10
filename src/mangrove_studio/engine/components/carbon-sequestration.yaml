@@ -51,12 +51,12 @@ component:
       default: "biochar"
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "{name}"
       output_unit: tCO₂e
       operator: product
       data_point_type: "calculated-{output_prefix}-gross-co2e-stored"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Dry Biochar Mass"
         output_unit: "{mass_unit}"
         data_point_type: "{mass_slug}"

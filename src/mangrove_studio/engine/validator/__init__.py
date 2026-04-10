@@ -75,7 +75,7 @@ def validate_component(component: dict) -> list[str]:
         issues.append("Component must have at least one calculated output")
 
     tree = component.get("node_tree", {})
-    nodes = tree.get("nexus_nodes_attributes", [])
+    nodes = tree.get("mangrove_nodes", [])
     if not nodes:
         issues.append("node_tree must have at least one root node")
 

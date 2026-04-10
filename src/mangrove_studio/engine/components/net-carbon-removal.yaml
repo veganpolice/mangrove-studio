@@ -63,12 +63,12 @@ component:
       default: "biochar"
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "{name}"
       output_unit: tCO₂e
       operator: difference
       data_point_type: "calculated-{output_prefix}-net-removal"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Durable Carbon Stored"
         output_unit: tCO₂e
         order: 0

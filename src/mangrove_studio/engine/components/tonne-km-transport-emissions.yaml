@@ -54,20 +54,20 @@ component:
       default: "Feedstock"
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "Emissions from {name_prefix} transportation"
       output_unit: tCO₂e
       operator: product
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "{name_prefix} delivered - tonne-km"
         output_unit: tonne.kilometer
         operator: summation
-        nexus_nodes_attributes:
+        mangrove_nodes:
         - name: "{name_prefix} Delivered -tonne-km Product"
           output_unit: tonne.kilometer
           operator: product
           should_aggregate: false
-          nexus_nodes_attributes:
+          mangrove_nodes:
           - name: "{name_prefix} Delivery Distance"
             output_unit: mile
             data_point_type: "{distance_slug}"

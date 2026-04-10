@@ -348,11 +348,11 @@ def _build_node_tree(parsed: ParsedLCA) -> dict:
         if not children:
             children.append({"name": "Placeholder", "constant": 0})
         return {
-            "nexus_nodes_attributes": [{
+            "mangrove_nodes": [{
                 "name": "Total",
                 "operator": "summation",
                 "output_unit": "tCO₂e",
-                "nexus_nodes_attributes": children,
+                "mangrove_nodes": children,
             }]
         }
 
@@ -377,11 +377,11 @@ def _build_node_tree(parsed: ParsedLCA) -> dict:
                 "data_point_type": f"TODO-{_slugify(ref)}",
             })
         if children:
-            node["nexus_nodes_attributes"] = children
+            node["mangrove_nodes"] = children
 
         nodes.append(node)
 
-    return {"nexus_nodes_attributes": nodes}
+    return {"mangrove_nodes": nodes}
 
 
 def _slugify(text: str) -> str:

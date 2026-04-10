@@ -69,7 +69,7 @@ class TestGenerateTool:
     def test_generate_composition(self):
         result = generate_model_yaml("alberta-feedstock-sourcing")
         parsed = yaml.safe_load(result)
-        assert "nexus_nodes_attributes" in parsed
+        assert "mangrove_nodes" in parsed
 
 
 class TestRunTool:

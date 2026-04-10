@@ -70,6 +70,6 @@ def test_generate_composition():
             data = yaml.safe_load(f)
         if data and "model" in data:
             result = generate_composition_yaml(data["model"])
-            assert "nexus_nodes_attributes" in result
+            assert "mangrove_nodes" in result
             parsed = yaml.safe_load(result)
-            assert "nexus_nodes_attributes" in parsed
+            assert "mangrove_nodes" in parsed

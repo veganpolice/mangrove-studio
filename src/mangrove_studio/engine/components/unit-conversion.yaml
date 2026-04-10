@@ -45,12 +45,12 @@ component:
       required: true
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "{name}"
       output_unit: "{output_unit}"
       operator: product
       data_point_type: "calculated-{output_slug}"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Input Value"
         output_unit: "{input_unit}"
         data_point_type: "{input_slug}"

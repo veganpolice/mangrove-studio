@@ -55,11 +55,11 @@ component:
       required: true
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "Emissions from {fuel_name} combustion"
       output_unit: tCO₂e
       operator: product
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "{fuel_name} consumed"
         output_unit: "{fuel_unit}"
         data_point_type: "{fuel_slug}"

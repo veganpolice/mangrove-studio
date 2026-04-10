@@ -44,12 +44,12 @@ component:
       required: true
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "{name}"
       output_unit: "tCO₂e/t"
       operator: quotient
       data_point_type: "{output_slug}"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Total Emissions"
         output_unit: tCO₂e
         order: 0

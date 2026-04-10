@@ -56,11 +56,11 @@ component:
       default: true
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "Emissions from {activity_name}"
       output_unit: tCO₂e
       operator: product
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "{activity_name}"
         output_unit: "{activity_unit}"
         data_point_type: "{activity_slug}"

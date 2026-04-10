@@ -245,7 +245,7 @@ def list_required_inputs(composition_id: str) -> str:
             tree = yaml.safe_load(yaml_str)
 
             all_slugs = set()
-            for root in tree.get("nexus_nodes_attributes", []):
+            for root in tree.get("mangrove_nodes", []):
                 all_slugs.update(collect_dpt_slugs(root))
 
             # Separate calculated (outputs) from inputs

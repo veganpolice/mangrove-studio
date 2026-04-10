@@ -58,29 +58,29 @@ component:
       default: "feedstock"
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: Biochar Attribution Factor
       output_unit: "%"
       operator: quotient
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: Feedstock Green Tons Replacement
         output_unit: "U.S. ton"
         order: 0
         operator: quotient
-        nexus_nodes_attributes:
+        mangrove_nodes:
         - name: Feedstock Dry Tons Replacement
           output_unit: "U.S. ton"
           order: 0
           data_point_type: tons-feedstock-replacement-dry
           operator: product
-          nexus_nodes_attributes:
+          mangrove_nodes:
           - name: Tons Biochar Produced (DRY)
             output_unit: "U.S. ton"
             data_point_type: tons-biochar-produced-dry
           - name: Feedstock Replacement Factor
             output_unit: ""
             operator: quotient
-            nexus_nodes_attributes:
+            mangrove_nodes:
             - name: Biochar Heating Value
               output_unit: "btu/lb"
               order: 0
@@ -98,7 +98,7 @@ component:
           data_point_type: fuel-dry-percentage
           order: 1
           operator: "1 - fuel-moisture-content-"
-          nexus_nodes_attributes:
+          mangrove_nodes:
           - name: Fuel Moisture Content
             output_unit: "%"
             data_point_type: fuel-moisture-content-
@@ -107,7 +107,7 @@ component:
       - name: Total Green Tons Burned
         output_unit: "U.S. ton"
         operator: summation
-        nexus_nodes_attributes:
+        mangrove_nodes:
         - name: Green Tons Burned
           output_unit: "U.S. ton"
           data_point_type: total-green-tons-burned

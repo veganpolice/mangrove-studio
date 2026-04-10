@@ -58,7 +58,7 @@ class TestSummation:
         node = {
             "name": "Total",
             "operator": "summation",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "A", "constant": 10.0},
                 {"name": "B", "constant": 20.0},
                 {"name": "C", "constant": 30.0},
@@ -72,7 +72,7 @@ class TestSummation:
             "name": "Total Mass",
             "operator": "summation",
             "data_point_type": "calculated-total",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Wet", "data_point_type": "tons-wet"},
                 {"name": "Dry", "data_point_type": "tons-dry"},
             ],
@@ -87,7 +87,7 @@ class TestProduct:
         node = {
             "name": "Emissions",
             "operator": "product",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Activity", "data_point_type": "kwh-used"},
                 {"name": "EF", "data_point_type": "ef-electricity"},
             ],
@@ -100,7 +100,7 @@ class TestProduct:
         node = {
             "name": "Emissions",
             "operator": "product",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Activity", "data_point_type": "kwh-used", "should_aggregate": True},
                 {"name": "EF", "data_point_type": "ef-electricity"},
             ],
@@ -114,7 +114,7 @@ class TestQuotient:
         node = {
             "name": "CI",
             "operator": "quotient",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Emissions", "data_point_type": "total-emissions", "order": 0},
                 {"name": "Mass", "data_point_type": "total-mass", "order": 1},
             ],
@@ -126,7 +126,7 @@ class TestQuotient:
         node = {
             "name": "CI",
             "operator": "quotient",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Num", "constant": 10.0, "order": 0},
                 {"name": "Den", "constant": 0.0, "order": 1},
             ],
@@ -141,7 +141,7 @@ class TestDifference:
         node = {
             "name": "Net",
             "operator": "difference",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Gross", "constant": 100.0, "order": 0},
                 {"name": "Deduction", "constant": 30.0, "order": 1},
             ],
@@ -156,7 +156,7 @@ class TestKeisan:
         node = {
             "name": "Amortized EE",
             "operator": "(ee_slug * days_slug) / (rate_slug * 365)",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "EE", "data_point_type": "ee-slug", "order": 0},
                 {"name": "Rate", "data_point_type": "rate-slug", "order": 1},
                 {"name": "Days", "data_point_type": "days-slug", "order": 2},
@@ -173,7 +173,7 @@ class TestKeisan:
             "name": "Dry Percentage",
             "operator": "1 - fuel-moisture-content-",
             "data_point_type": "fuel-dry-percentage",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Moisture", "data_point_type": "fuel-moisture-content-"},
             ],
         }
@@ -188,7 +188,7 @@ class TestKeisan:
             "name": "Dry Mass",
             "operator": "tons-wet - tons-water",
             "data_point_type": "calculated-dry",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "Wet", "data_point_type": "tons-wet"},
                 {"name": "Water", "data_point_type": "tons-water"},
             ],
@@ -204,16 +204,16 @@ class TestSumproductPattern:
         node = {
             "name": "Transport Emissions",
             "operator": "product",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {
                     "name": "Tonne-km total",
                     "operator": "summation",
-                    "nexus_nodes_attributes": [
+                    "mangrove_nodes": [
                         {
                             "name": "Per-delivery tonne-km",
                             "operator": "product",
                             "should_aggregate": False,
-                            "nexus_nodes_attributes": [
+                            "mangrove_nodes": [
                                 {
                                     "name": "Distance",
                                     "data_point_type": "delivery-distance",
@@ -247,7 +247,7 @@ class TestOutputCapture:
             "name": "Total",
             "operator": "summation",
             "data_point_type": "calculated-total",
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {"name": "A", "constant": 10.0},
                 {"name": "B", "constant": 20.0},
             ],
@@ -260,12 +260,12 @@ class TestOutputCapture:
 class TestRunModel:
     def test_run_simple_model(self):
         tree = {
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {
                     "name": "Emissions",
                     "operator": "product",
                     "data_point_type": "calculated-emissions",
-                    "nexus_nodes_attributes": [
+                    "mangrove_nodes": [
                         {"name": "Activity", "data_point_type": "kwh-used"},
                         {"name": "EF", "data_point_type": "ef-electricity"},
                     ],
@@ -278,12 +278,12 @@ class TestRunModel:
     def test_run_multi_root_model(self):
         """Model with multiple root nodes (like biochar produced model)."""
         tree = {
-            "nexus_nodes_attributes": [
+            "mangrove_nodes": [
                 {
                     "name": "Total Mass",
                     "operator": "summation",
                     "data_point_type": "calculated-mass-total",
-                    "nexus_nodes_attributes": [
+                    "mangrove_nodes": [
                         {"name": "Mass Input", "data_point_type": "tons-input"},
                     ],
                 },
@@ -291,7 +291,7 @@ class TestRunModel:
                     "name": "Emissions",
                     "operator": "product",
                     "data_point_type": "calculated-emissions",
-                    "nexus_nodes_attributes": [
+                    "mangrove_nodes": [
                         {"name": "Activity", "data_point_type": "kwh-used"},
                         {"name": "EF", "data_point_type": "ef-electricity"},
                     ],

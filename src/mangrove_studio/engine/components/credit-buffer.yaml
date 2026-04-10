@@ -44,12 +44,12 @@ component:
       default: "biochar"
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "{name}"
       output_unit: tCO₂e
       operator: product
       data_point_type: "calculated-{output_prefix}-issued-credits"
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "Net Carbon Removal"
         output_unit: tCO₂e
         data_point_type: "{net_removal_slug}"

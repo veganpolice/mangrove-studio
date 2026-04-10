@@ -92,12 +92,12 @@ def init(name, path):
                 {"name": "output_prefix", "description": "Output slug prefix", "required": True},
             ],
             "node_tree": {
-                "nexus_nodes_attributes": [
+                "mangrove_nodes": [
                     {
                         "name": "Emissions",
                         "operator": "product",
                         "output_unit": "tCO\u2082e",
-                        "nexus_nodes_attributes": [
+                        "mangrove_nodes": [
                             {"name": "Activity", "data_point_type": "{activity_slug}", "output_unit": "{activity_unit}"},
                             {"name": "EF", "data_point_type": "{ef_slug}", "output_unit": "{ef_unit}"},
                         ],
@@ -267,7 +267,7 @@ def _explain_component(comp: dict):
 
     # Calculation tree summary
     click.echo("Calculation Tree:")
-    _print_tree(comp["node_tree"]["nexus_nodes_attributes"], indent=2)
+    _print_tree(comp["node_tree"]["mangrove_nodes"], indent=2)
 
 
 def _explain_composition(model: dict):
@@ -314,7 +314,7 @@ def _print_tree(nodes: list[dict], indent: int = 0):
         extra_str = f" ({', '.join(extras)})" if extras else ""
         click.echo(f"{prefix}- {label}{extra_str}")
 
-        children = node.get("nexus_nodes_attributes", [])
+        children = node.get("mangrove_nodes", [])
         if children:
             _print_tree(children, indent + 2)
 

@@ -192,10 +192,10 @@
     },
     "node_tree": {
       "type": "object",
-      "required": ["nexus_nodes_attributes"],
+      "required": ["mangrove_nodes"],
       "additionalProperties": false,
       "properties": {
-        "nexus_nodes_attributes": {
+        "mangrove_nodes": {
           "type": "array",
           "items": { "$ref": "#/$defs/node" },
           "minItems": 1
@@ -244,7 +244,7 @@
         "subcategory": {
           "type": "string"
         },
-        "nexus_nodes_attributes": {
+        "mangrove_nodes": {
           "type": "array",
           "items": { "$ref": "#/$defs/node" },
           "description": "Child nodes"

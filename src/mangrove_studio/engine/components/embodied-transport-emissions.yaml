@@ -49,15 +49,15 @@ component:
       default: "Biochar"
 
   node_tree:
-    nexus_nodes_attributes:
+    mangrove_nodes:
     - name: "Embodied Emissions {name_prefix} Transportation"
       output_unit: tCO₂e
       operator: product
-      nexus_nodes_attributes:
+      mangrove_nodes:
       - name: "{name_prefix} Delivery Distance Total"
         output_unit: mile
         operator: summation
-        nexus_nodes_attributes:
+        mangrove_nodes:
         - name: "{name_prefix} Delivery Distance"
           output_unit: mile
           data_point_type: "{prefix}-delivery-distance"

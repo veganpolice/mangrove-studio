@@ -47,7 +47,7 @@ class TestValidateGeneratedYaml:
                 },
                 "parameters": [],
                 "node_tree": {
-                    "nexus_nodes_attributes": [
+                    "mangrove_nodes": [
                         {"name": "Test", "data_point_type": "test-input", "output_unit": "kg"}
                     ],
                 },
@@ -75,7 +75,7 @@ class TestSystemPrompt:
         assert "carbon-sequestration" in SYSTEM_PROMPT
         assert "net-carbon-removal" in SYSTEM_PROMPT
         assert "permanence-factor" in SYSTEM_PROMPT
-        assert "nexus_nodes_attributes" in SYSTEM_PROMPT
+        assert "mangrove_nodes" in SYSTEM_PROMPT
 
     def test_prompt_contains_rules(self):
         assert "calculated-" in SYSTEM_PROMPT
