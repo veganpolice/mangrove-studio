@@ -1,0 +1,59 @@
+component:
+  id: unit-conversion
+  name: Unit Conversion
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: any
+    description: >-
+      Generic unit conversion: input_value × conversion_factor.
+      Used when upstream and downstream models use different units
+      (e.g., U.S. ton to metric tonne, gallons to liters, etc.).
+      The conversion factor is a static input so it can be audited.
+
+  inputs:
+    upstream_references:
+      - slug_template: "{input_slug}"
+        unit: "{input_unit}"
+        description: Value to convert
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_slug}"
+        unit: "{output_unit}"
+        description: Converted value
+
+  parameters:
+    - name: name
+      description: "Human-readable name (e.g., 'Convert US ton to metric tonne')"
+      required: true
+    - name: input_slug
+      description: "DPT slug for the input value"
+      required: true
+    - name: input_unit
+      description: "Unit of the input"
+      required: true
+    - name: output_slug
+      description: "Slug suffix for the converted output"
+      required: true
+    - name: output_unit
+      description: "Target unit"
+      required: true
+    - name: conversion_factor
+      description: "Multiplication factor (e.g., 0.907185 for US ton → metric tonne)"
+      required: true
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: "{output_unit}"
+      operator: product
+      data_point_type: "calculated-{output_slug}"
+      nexus_nodes_attributes:
+      - name: "Input Value"
+        output_unit: "{input_unit}"
+        data_point_type: "{input_slug}"
+      - name: "Conversion Factor"
+        output_unit: ""
+        constant: "{conversion_factor}"

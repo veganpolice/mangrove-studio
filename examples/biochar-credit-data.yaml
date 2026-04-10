@@ -1,0 +1,17 @@
+# Example input data for the Biochar Carbon Credit model
+# Assumes upstream models have already calculated their outputs
+
+# Upstream calculated values (from production/feedstock/delivery models)
+calculated-biochar-produced-dry: 90.0  # tonnes dry biochar
+calculated-feedstock-sourcing-emissions: 5.2   # tCO₂e
+calculated-biochar-production-emissions: 12.8  # tCO₂e
+calculated-biochar-end-use-emissions: 3.1      # tCO₂e
+
+# Biochar characterization
+biochar-organic-carbon-fraction: 0.82  # 82% organic carbon content
+
+# Permanence factor from Woolf decay curve (H:Corg = 0.35 → ~0.89 for 100yr)
+biochar-permanence-factor: 0.89
+
+# Puro buffer: retain 90% (10% buffer pool)
+puro-buffer-fraction: 0.90

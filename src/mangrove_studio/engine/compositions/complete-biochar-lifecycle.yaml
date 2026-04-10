@@ -1,0 +1,211 @@
+# Complete Biochar Lifecycle Model
+#
+# Chains all 4 stages into a single end-to-end model for demonstration:
+# 1. Feedstock mass aggregation
+# 2. Production: mass tracking + all process emissions
+# 3. Delivery: transport + application + embodied vehicle emissions
+# 4. Carbon credit: sequestration → permanence → net removal → buffer
+#
+# In production, these would be separate models connected by slug references.
+# This monolithic composition shows the full calculation flow in one file.
+#
+# Tree structure:
+#   Root 1: Feedstock Received [mass-aggregation]
+#   Root 2: Biochar Produced Wet [mass-aggregation]
+#   Root 3: Biochar Produced Dry [mass-aggregation]
+#   Root 4: Production Emissions [summation]
+#   │  ├── embodied-emissions-amortization (equipment)
+#   │  ├── activity-emission-factor (electricity)
+#   │  ├── fuel-combustion-emissions (diesel)
+#   │  └── activity-emission-factor (water)
+#   Root 5: Delivery Emissions [summation]
+#   │  ├── tonne-km-transport-emissions (biochar delivery)
+#   │  └── activity-emission-factor (application)
+#   Root 6: Gross CO₂e Stored [carbon-sequestration]
+#   Root 7: Durable CO₂e Stored [permanence-factor]
+#   Root 8: Net Carbon Removal [net-carbon-removal]
+#   Root 9: Issued Credits [credit-buffer]
+#   Root 10: Carbon Intensity [carbon-intensity]
+
+model:
+  id: complete-biochar-lifecycle
+  name: Complete Biochar Lifecycle
+  description: >-
+    End-to-end biochar carbon credit model covering feedstock receipt,
+    production with process emissions, delivery, carbon sequestration
+    with permanence discount, net removal, and credit issuance.
+
+  components:
+    # Stage 1: Feedstock
+    - component_id: mass-aggregation
+      instance_id: feedstock-received
+      params:
+        name: "Feedstock Received"
+        input_slug: "feedstock-mass-tonnes"
+        output_slug: "feedstock-received"
+        unit: "t"
+
+    # Stage 2: Production - Mass tracking
+    - component_id: mass-aggregation
+      instance_id: biochar-wet
+      params:
+        name: "Biochar Produced (wet)"
+        input_slug: "biochar-produced-wet-tonnes"
+        output_slug: "biochar-produced-wet"
+        unit: "t"
+
+    - component_id: mass-aggregation
+      instance_id: biochar-dry
+      params:
+        name: "Biochar Produced (dry)"
+        input_slug: "biochar-produced-dry-tonnes"
+        output_slug: "biochar-produced-dry"
+        unit: "t"
+
+    # Stage 2: Production - Emissions
+    - component_id: embodied-emissions-amortization
+      instance_id: equipment-ee
+      params:
+        name: "Equipment Embodied Emissions"
+        ee_slug: "constant-equipment-embodied-emissions"
+        amortization_rate_slug: "constant-amortization-years"
+        days_slug: "days-in-period"
+        output_prefix: "production"
+
+    - component_id: activity-emission-factor
+      instance_id: electricity
+      params:
+        activity_name: "electricity"
+        activity_slug: "electricity-kwh"
+        activity_unit: "kWh"
+        ef_slug: "ef-grid-electricity"
+        ef_unit: "kgCO₂e/kWh"
+        output_prefix: "electricity"
+
+    - component_id: fuel-combustion-emissions
+      instance_id: diesel
+      params:
+        fuel_name: "Diesel"
+        fuel_slug: "diesel-litres"
+        fuel_unit: "L"
+        ef_slug: "ef-diesel"
+        ef_unit: "kgCO₂e/L"
+        output_prefix: "diesel"
+
+    - component_id: activity-emission-factor
+      instance_id: water
+      params:
+        activity_name: "water"
+        activity_slug: "water-litres"
+        activity_unit: "L"
+        ef_slug: "ef-water"
+        ef_unit: "kgCO₂e/L"
+        output_prefix: "water"
+
+    # Stage 3: Delivery
+    - component_id: tonne-km-transport-emissions
+      instance_id: biochar-transport
+      params:
+        distance_slug: "delivery-distance-km"
+        mass_slug: "biochar-produced-wet-tonnes"
+        ef_slug: "ef-heavy-truck"
+        name_prefix: "Biochar"
+
+    - component_id: activity-emission-factor
+      instance_id: application
+      params:
+        activity_name: "biochar application"
+        activity_slug: "biochar-produced-wet-tonnes"
+        activity_unit: "t"
+        ef_slug: "ef-application"
+        ef_unit: "kgCO₂e/t"
+        output_prefix: "application"
+
+    # Stage 4: Carbon credit
+    - component_id: carbon-sequestration
+      instance_id: gross-stored
+      params:
+        name: "Gross CO₂e Stored"
+        mass_slug: "calculated-biochar-produced-dry"
+        mass_unit: "t"
+        carbon_content_slug: "biochar-organic-carbon-fraction"
+        output_prefix: "biochar"
+
+    - component_id: permanence-factor
+      instance_id: durable-stored
+      params:
+        name: "Durable Carbon Stored"
+        gross_stored_slug: "calculated-biochar-gross-co2e-stored"
+        permanence_factor_slug: "permanence-factor-woolf"
+        output_prefix: "biochar"
+
+    - component_id: net-carbon-removal
+      instance_id: net-removal
+      params:
+        name: "Net Carbon Removal"
+        stored_slug: "calculated-biochar-durable-co2e-stored"
+        biomass_emissions_slug: "calculated-feedstock-emissions"
+        production_emissions_slug: "calculated-production-emissions"
+        use_emissions_slug: "calculated-delivery-emissions"
+        output_prefix: "biochar"
+
+    - component_id: credit-buffer
+      instance_id: issued-credits
+      params:
+        name: "Issued Carbon Credits"
+        net_removal_slug: "calculated-biochar-net-removal"
+        buffer_fraction_slug: "buffer-fraction"
+        output_prefix: "biochar"
+
+    - component_id: carbon-intensity
+      instance_id: lifecycle-ci
+      params:
+        name: "Lifecycle Carbon Intensity"
+        emissions_slug: "calculated-production-emissions"
+        mass_slug: "calculated-biochar-produced-dry"
+        mass_unit: "t"
+        output_slug: "lifecycle-carbon-intensity"
+
+  tree:
+    # Stage 1: Feedstock
+    - component: feedstock-received
+
+    # Stage 2: Production - Mass
+    - component: biochar-wet
+    - component: biochar-dry
+
+    # Stage 2: Production - Emissions
+    - node:
+        name: Total Production Emissions
+        operator: summation
+        output_unit: tCO₂e
+        data_point_type: calculated-production-emissions
+      children:
+        - component: equipment-ee
+        - component: electricity
+        - component: diesel
+        - component: water
+        # Feedstock emissions placeholder (would come from feedstock model)
+        - node:
+            name: Feedstock Sourcing Emissions
+            output_unit: tCO₂e
+            data_point_type: calculated-feedstock-emissions
+
+    # Stage 3: Delivery
+    - node:
+        name: Total Delivery Emissions
+        operator: summation
+        output_unit: tCO₂e
+        data_point_type: calculated-delivery-emissions
+      children:
+        - component: biochar-transport
+        - component: application
+
+    # Stage 4: Carbon credit chain
+    - component: gross-stored
+    - component: durable-stored
+    - component: net-removal
+    - component: issued-credits
+
+    # Summary metric
+    - component: lifecycle-ci

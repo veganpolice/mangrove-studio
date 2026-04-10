@@ -1,0 +1,60 @@
+component:
+  id: mass-aggregation
+  name: Mass Aggregation
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: any
+    description: >-
+      Simple summation of a mass-based event data point across all events
+      in the period. Produces a calculated total. Used for feedstock received,
+      biochar produced, or any material mass tracking.
+
+  inputs:
+    event_data_points:
+      - slug_template: "{input_slug}"
+        unit: "{unit}"
+        description: Mass per event
+        category: "{category}"
+        subcategory: "{subcategory}"
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_slug}"
+        unit: "{unit}"
+        description: Total mass across all events in the period
+
+  parameters:
+    - name: name
+      description: "Human-readable name for the aggregation (e.g., 'Feedstock Received')"
+      required: true
+    - name: input_slug
+      description: "DPT slug for the per-event mass input"
+      required: true
+    - name: output_slug
+      description: "Suffix for the calculated output slug (prefixed with 'calculated-')"
+      required: true
+    - name: unit
+      description: "Unit of measurement"
+      default: "t"
+    - name: category
+      description: "Mangrove category tag"
+      default: "production"
+    - name: subcategory
+      description: "Mangrove subcategory tag"
+      default: "production_activity"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: "{unit}"
+      operator: summation
+      order: -1
+      data_point_type: "calculated-{output_slug}"
+      nexus_nodes_attributes:
+      - name: "{name} Input"
+        output_unit: "{unit}"
+        data_point_type: "{input_slug}"
+        category: "{category}"
+        subcategory: "{subcategory}"

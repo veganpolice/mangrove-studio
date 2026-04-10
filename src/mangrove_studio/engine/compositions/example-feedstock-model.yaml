@@ -1,0 +1,106 @@
+# Example Feedstock Model
+#
+# Demonstrates feedstock sourcing with heating-value attribution.
+#
+# Tree structure:
+#   Feedstock Sourcing Emissions [summation]
+#   ├── Emissions from feedstock transportation [product]
+#   │   ├── tonne-km-transport-emissions
+#   │   └── heating-value-attribution-factor
+#   └── Embodied Emissions for Transport [product]
+#       ├── Transport Miles Attributed [product]
+#       │   ├── Average Miles per Ton [quotient, inline]
+#       │   └── heating-value-attribution-factor (green tons replacement)
+#       └── EF - Embodied Emissions Transportation [inline leaf]
+
+model:
+  id: example-feedstock-sourcing
+  name: Feedstock Sourcing Emissions
+  description: >-
+    Feedstock transport emissions + embodied transport emissions,
+    each allocated to biochar via heating-value attribution.
+
+  components:
+    - component_id: tonne-km-transport-emissions
+      instance_id: feedstock-transport
+      params:
+        distance_slug: "feedstock-delivery-distance-miles"
+        mass_slug: "feedstock-delivery-wet-mass-us-ton"
+        ef_slug: "ef-heavy-bulk-north-america"
+        name_prefix: "Feedstock"
+
+    - component_id: heating-value-attribution-factor
+      instance_id: feedstock-attribution
+      params:
+        prefix: "feedstock"
+
+    - component_id: heating-value-attribution-factor
+      instance_id: embodied-attribution
+      params:
+        prefix: "feedstock"
+
+  tree:
+    - node:
+        name: Feedstock Sourcing Emissions
+        output_unit: tCO₂e
+        operator: summation
+        data_point_type: calculated-feedstock-sourcing-emissions
+      children:
+        # Branch 1: Transport emissions = tonne-km × EF × attribution
+        # The tonne-km component produces a product node; attribution
+        # factor is injected as an additional child of that product.
+        - component: feedstock-transport
+          children:
+            - component: feedstock-attribution
+
+        # Branch 2: Embodied emissions = attributed miles × EF
+        # This branch is more custom — uses avg miles/ton × replacement
+        # tons to get attributed miles, then multiplies by embodied EF.
+        - node:
+            name: Embodied Emissions for Transport
+            output_unit: tCO₂e
+            operator: product
+          children:
+            - node:
+                name: Transport Miles Attributed
+                output_unit: mile
+                operator: product
+              children:
+                - node:
+                    name: Average Miles per Ton Feedstock Burned
+                    output_unit: "mile/U.S. ton"
+                    operator: quotient
+                  children:
+                    - node:
+                        name: Feedstock Delivery Distance Total
+                        output_unit: mile
+                        order: 0
+                        operator: summation
+                      children:
+                        - node:
+                            name: Feedstock Delivery Distance
+                            output_unit: mile
+                            data_point_type: feedstock-delivery-distance-miles
+                            category: emissions
+                            subcategory: fuel_emissions
+                    - node:
+                        name: Total Green Tons Burned
+                        output_unit: "U.S. ton"
+                        order: 1
+                        operator: summation
+                      children:
+                        - node:
+                            name: Green Tons Burned
+                            output_unit: "U.S. ton"
+                            data_point_type: total-green-tons-burned
+                            category: emissions
+                            subcategory: fuel_emissions
+                # Reuse attribution factor component for green tons replacement
+                - component: embodied-attribution
+                  children: []
+            - node:
+                name: EF - Embodied Emissions Transportation
+                output_unit: "kgCO₂e/mile"
+                data_point_type: ef-embodied-emissions-transportation
+                category: emissions
+                subcategory: fuel_emissions

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mangrove.climate/schemas/model-composition/v1",
+  "title": "Mangrove Model Composition",
+  "description": "Defines how granular components are assembled into a complete Mangrove model with proper tree nesting. The 'tree' section describes the node hierarchy, referencing component instances by their instance_id.",
+  "type": "object",
+  "required": ["model"],
+  "additionalProperties": false,
+  "properties": {
+    "model": {
+      "type": "object",
+      "required": ["id", "name", "description", "components", "tree"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$",
+          "description": "Unique model identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable model name"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this model calculates"
+        },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/component_instance" },
+          "minItems": 1,
+          "description": "Component instances with their parameter values"
+        },
+        "tree": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tree_entry" },
+          "minItems": 1,
+          "description": "Root-level tree entries. Each is a component ref, grouping node, or inline leaf node."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "component_instance": {
+      "type": "object",
+      "required": ["component_id", "instance_id", "params"],
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "type": "string",
+          "description": "References a component definition by id"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "Unique ID for this instance, referenced in the tree"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Parameter values for this component instance"
+        }
+      }
+    },
+    "tree_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "description": "Instance ID of a component to embed at this position"
+        },
+        "node": {
+          "type": "object",
+          "description": "Inline grouping/operator node (not from a component)",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "operator": { "type": "string" },
+            "output_unit": { "type": "string" },
+            "data_point_type": { "type": "string" },
+            "order": { "type": "integer" },
+            "constant": { "type": "number" },
+            "category": { "type": "string" },
+            "subcategory": { "type": "string" },
+            "should_aggregate": { "type": "boolean" }
+          },
+          "required": ["name"]
+        },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tree_entry" },
+          "description": "Child tree entries nested under this node"
+        }
+      }
+    }
+  }
+}

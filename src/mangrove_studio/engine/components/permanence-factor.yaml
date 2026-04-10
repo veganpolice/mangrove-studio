@@ -1,0 +1,71 @@
+component:
+  id: permanence-factor
+  name: Permanence Factor
+  version: "1.0"
+
+  metadata:
+    pathway: biochar
+    stage: sequestration
+    description: >-
+      Applies a permanence discount to gross sequestration based on the
+      H:Corg molar ratio of the biochar. Lower H:Corg indicates more
+      stable (aromatic) carbon. Both Puro and Isometric use the Woolf et al.
+      (2021) decay model. This component multiplies gross stored CO₂e by
+      a permanence fraction derived from H:Corg.
+
+      For Puro 200-year pathway: H:Corg must be < 0.7.
+      For Isometric 1000-year pathway: requires Random Reflectance R0 testing.
+
+      Simplified approach: permanence_factor is provided as a static input
+      (looked up from the Woolf decay curve for the measured H:Corg ratio).
+    methodology:
+      - registry: puro
+        requirement: "Permanence discount based on H:Corg and Woolf et al. (2021) decay model"
+      - registry: isometric
+        requirement: "200-year durability factor from H:Corg decay curve"
+
+  inputs:
+    upstream_references:
+      - slug_template: "{gross_stored_slug}"
+        unit: tCO₂e
+        description: Gross CO₂e stored (before permanence discount)
+    static_data_points:
+      - slug_template: "{permanence_factor_slug}"
+        unit: ""
+        description: >-
+          Permanence factor (0-1) from Woolf decay curve lookup.
+          E.g., H:Corg=0.4 → ~0.89 for 100-year, ~0.82 for 200-year.
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-durable-co2e-stored"
+        unit: tCO₂e
+        description: Durable CO₂e stored after permanence discount
+
+  parameters:
+    - name: name
+      description: "Human-readable name"
+      default: "Durable Carbon Stored"
+    - name: gross_stored_slug
+      description: "DPT slug for gross CO₂e stored"
+      required: true
+    - name: permanence_factor_slug
+      description: "DPT slug for permanence factor (0-1)"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the output slug"
+      default: "biochar"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: tCO₂e
+      operator: product
+      data_point_type: "calculated-{output_prefix}-durable-co2e-stored"
+      nexus_nodes_attributes:
+      - name: "Gross CO₂e Stored"
+        output_unit: tCO₂e
+        data_point_type: "{gross_stored_slug}"
+      - name: "Permanence Factor"
+        output_unit: ""
+        data_point_type: "{permanence_factor_slug}"

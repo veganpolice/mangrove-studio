@@ -1,0 +1,76 @@
+component:
+  id: embodied-emissions-amortization
+  name: Embodied Emissions Amortization
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: production
+    description: >-
+      Amortizes one-time embodied emissions (equipment, materials) over time
+      using a keisan expression: (total_ee × days_in_period) / (amortization_years × 365).
+      Produces a per-period emission value.
+
+  inputs:
+    static_data_points:
+      - slug_template: "{ee_slug}"
+        unit: "kgCO₂e"
+        description: Total embodied emissions for equipment/materials
+        category: emissions
+        subcategory: other
+      - slug_template: "{amortization_rate_slug}"
+        unit: ""
+        description: Amortization period in years
+        category: emissions
+        subcategory: other
+    event_data_points:
+      - slug_template: "{days_slug}"
+        unit: ""
+        description: Days in the production period
+        category: emissions
+        subcategory: other
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-amortized-ee"
+        unit: tCO₂e
+        description: Amortized embodied emissions for the period
+
+  parameters:
+    - name: name
+      description: "Human-readable name (e.g., 'Embodied Emissions Equipment & Materials')"
+      required: true
+    - name: ee_slug
+      description: "DPT slug for total embodied emissions"
+      required: true
+    - name: amortization_rate_slug
+      description: "DPT slug for amortization rate (years)"
+      required: true
+    - name: days_slug
+      description: "DPT slug for days in production period"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the output slug"
+      required: true
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: tCO₂e
+      operator: "({ee_slug} * {days_slug}) / ({amortization_rate_slug} * 365)"
+      nexus_nodes_attributes:
+      - name: "Total Embodied Emissions"
+        output_unit: "kgCO₂e"
+        data_point_type: "{ee_slug}"
+        category: emissions
+        subcategory: other
+      - name: "Amortization Rate"
+        output_unit: ""
+        data_point_type: "{amortization_rate_slug}"
+        category: emissions
+        subcategory: other
+      - name: "Days in Production Period"
+        output_unit: ""
+        data_point_type: "{days_slug}"
+        category: emissions
+        subcategory: other

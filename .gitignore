@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+*.api_key
+.ruff_cache/
+.pytest_cache/
+
+# Overnight session workspace files
+DONE
+findings/
+learnings/
+reviews/
+test-results/
+progress.md
+trace.md
+questions.md
+plan.md
+report.md
+.claude/

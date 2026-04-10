@@ -1,0 +1,58 @@
+component:
+  id: credit-buffer
+  name: Credit Buffer Deduction
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: credit
+    description: >-
+      Applies a buffer deduction to net removal to produce issuable credits.
+      Puro requires 10% buffer (multiply by 0.90).
+      Isometric buffer varies by risk assessment.
+      The buffer_fraction parameter is the fraction RETAINED (e.g., 0.90 for 10% buffer).
+    methodology:
+      - registry: puro
+        requirement: "10% buffer pool deduction on issued CORCs"
+      - registry: isometric
+        requirement: "Risk-adjusted buffer deduction"
+
+  inputs:
+    upstream_references:
+      - slug_template: "{net_removal_slug}"
+        unit: tCO₂e
+        description: Net carbon removal before buffer
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-issued-credits"
+        unit: tCO₂e
+        description: Issuable credits after buffer deduction
+
+  parameters:
+    - name: name
+      description: "Human-readable name"
+      default: "Issued Credits"
+    - name: net_removal_slug
+      description: "DPT slug for net removal"
+      required: true
+    - name: buffer_fraction_slug
+      description: "DPT slug for buffer fraction retained (e.g., 0.90)"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the output slug"
+      default: "biochar"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: tCO₂e
+      operator: product
+      data_point_type: "calculated-{output_prefix}-issued-credits"
+      nexus_nodes_attributes:
+      - name: "Net Carbon Removal"
+        output_unit: tCO₂e
+        data_point_type: "{net_removal_slug}"
+      - name: "Buffer Fraction Retained"
+        output_unit: ""
+        data_point_type: "{buffer_fraction_slug}"

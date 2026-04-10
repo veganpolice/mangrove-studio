@@ -1,0 +1,6 @@
+# Example input data for the Alberta Feedstock model
+# Three feedstock deliveries of 50, 30, and 20 tonnes
+mass-feedstock-transported:
+  - 50.0
+  - 30.0
+  - 20.0

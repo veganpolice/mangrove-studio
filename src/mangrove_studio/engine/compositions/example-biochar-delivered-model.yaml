@@ -1,0 +1,90 @@
+# Example Biochar Delivered Model
+#
+# Demonstrates delivery stage emissions.
+#
+# Tree structure:
+#   Root 1: Biochar end use emissions [summation]
+#   │  ├── tonne-km-transport-emissions (biochar delivery)
+#   │  ├── activity-emission-factor (biochar application)
+#   │  └── embodied-transport-emissions (delivery vehicles)
+#   Root 2: CI - Applied Biochar [carbon-intensity]
+#   Root 3: Biochar Applied Dry [keisan, inline node]
+
+model:
+  id: example-biochar-delivered
+  name: Biochar End Use Emissions
+  description: >-
+    Delivery transport emissions + biochar application emissions +
+    embodied vehicle emissions. Plus carbon intensity pass-through
+    and dry mass calculation.
+
+  components:
+    - component_id: tonne-km-transport-emissions
+      instance_id: biochar-delivery-transport
+      params:
+        distance_slug: "biochar-delivery-distance"
+        mass_slug: "tons-biochar-produced-wet"
+        ef_slug: "ef-heavy-bulk-north-america"
+        name_prefix: "Biochar"
+
+    - component_id: activity-emission-factor
+      instance_id: biochar-application
+      params:
+        activity_name: "biochar application"
+        activity_slug: "tons-biochar-produced-wet"
+        activity_unit: "U.S. ton"
+        ef_slug: "ef-biochar-application"
+        ef_unit: "kgCO₂e/tonne"
+        output_prefix: "biochar-application"
+
+    - component_id: embodied-transport-emissions
+      instance_id: biochar-embodied-delivery
+      params:
+        prefix: "biochar"
+        ef_slug: "ef-biochar-transport-embodied"
+        ef_unit: "gCO₂e/km"
+        name_prefix: "Biochar"
+
+    - component_id: carbon-intensity
+      instance_id: applied-biochar-ci
+      params:
+        name: "CI - Applied Biochar (production emissions only)"
+        emissions_slug: "biochar-produced-ci"
+        mass_slug: "calculated-biochar-applied-dry-tonnes"
+        mass_unit: "t"
+        output_slug: "ci-applied-biochar"
+
+  tree:
+    # Root 1: Summation wrapping 3 component subtrees as children
+    - node:
+        name: Biochar end use emissions
+        operator: summation
+        output_unit: tCO₂e
+        data_point_type: calculated-biochar-end-use-emissions
+      children:
+        - component: biochar-delivery-transport
+        - component: biochar-application
+        - component: biochar-embodied-delivery
+
+    # Root 2: Carbon intensity as separate root
+    - component: applied-biochar-ci
+
+    # Root 3: Inline keisan node (not a component — too project-specific)
+    - node:
+        name: Biochar Applied Dry (tonnes)
+        output_unit: t
+        data_point_type: calculated-biochar-applied-dry-tonnes
+        operator: "tons-biochar-produced-wet - water-added-to-biochar-tons"
+      children:
+        - node:
+            name: U.S Ton Biochar Applied Wet
+            output_unit: "U.S. ton"
+            data_point_type: tons-biochar-produced-wet
+            category: sequestration
+            subcategory: characterization
+        - node:
+            name: U.S. Ton Water Applied to Biochar
+            output_unit: "U.S. ton"
+            data_point_type: water-added-to-biochar-tons
+            category: sequestration
+            subcategory: characterization

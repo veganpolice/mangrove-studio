@@ -1,0 +1,87 @@
+component:
+  id: net-carbon-removal
+  name: Net Carbon Removal
+  version: "1.0"
+
+  metadata:
+    pathway: biochar
+    stage: credit
+    description: >-
+      Calculates net carbon removal by subtracting lifecycle emissions
+      from durable carbon stored. This is the final calculation that
+      determines credit-eligible removal.
+
+      Net = E_stored_durable - E_biomass - E_production - E_use
+
+      For Puro: a 10% buffer is then deducted (issued CORCs = net × 0.90).
+      For Isometric: buffer varies by risk assessment.
+    methodology:
+      - registry: puro
+        requirement: "CORCs = E_stored - E_biomass - E_production - E_use"
+      - registry: isometric
+        requirement: "Net removal = durable stored carbon - total lifecycle emissions"
+
+  inputs:
+    upstream_references:
+      - slug_template: "{stored_slug}"
+        unit: tCO₂e
+        description: Durable CO₂e stored (after permanence)
+      - slug_template: "{biomass_emissions_slug}"
+        unit: tCO₂e
+        description: Feedstock sourcing emissions (E_biomass)
+      - slug_template: "{production_emissions_slug}"
+        unit: tCO₂e
+        description: Production process emissions (E_production)
+      - slug_template: "{use_emissions_slug}"
+        unit: tCO₂e
+        description: End use/delivery emissions (E_use)
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-net-removal"
+        unit: tCO₂e
+        description: Net carbon removal (credits before buffer)
+
+  parameters:
+    - name: name
+      description: "Human-readable name"
+      default: "Net Carbon Removal"
+    - name: stored_slug
+      description: "DPT slug for durable CO₂e stored"
+      required: true
+    - name: biomass_emissions_slug
+      description: "DPT slug for biomass/feedstock emissions"
+      required: true
+    - name: production_emissions_slug
+      description: "DPT slug for production emissions"
+      required: true
+    - name: use_emissions_slug
+      description: "DPT slug for end use/delivery emissions"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the output slug"
+      default: "biochar"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: tCO₂e
+      operator: difference
+      data_point_type: "calculated-{output_prefix}-net-removal"
+      nexus_nodes_attributes:
+      - name: "Durable Carbon Stored"
+        output_unit: tCO₂e
+        order: 0
+        data_point_type: "{stored_slug}"
+      - name: "Feedstock Sourcing Emissions"
+        output_unit: tCO₂e
+        order: 1
+        data_point_type: "{biomass_emissions_slug}"
+      - name: "Production Emissions"
+        output_unit: tCO₂e
+        order: 2
+        data_point_type: "{production_emissions_slug}"
+      - name: "End Use Emissions"
+        output_unit: tCO₂e
+        order: 3
+        data_point_type: "{use_emissions_slug}"

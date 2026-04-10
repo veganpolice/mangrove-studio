@@ -1,0 +1,68 @@
+component:
+  id: carbon-sequestration
+  name: Carbon Sequestration
+  version: "1.0"
+
+  metadata:
+    pathway: biochar
+    stage: sequestration
+    description: >-
+      Calculates gross CO₂ equivalent stored in biochar based on
+      dry mass, organic carbon content, and the stoichiometric
+      conversion factor (44/12 = 3.667, molecular weight ratio of CO₂ to C).
+      This represents the maximum carbon removal before LCA deductions.
+    methodology:
+      - registry: puro
+        requirement: "E_stored = mass × organic_carbon_fraction × (44/12)"
+      - registry: isometric
+        requirement: "Gross carbon stored in biochar product"
+
+  inputs:
+    upstream_references:
+      - slug_template: "{mass_slug}"
+        unit: "{mass_unit}"
+        description: Dry mass of biochar
+    static_data_points:
+      - slug_template: "{carbon_content_slug}"
+        unit: "%"
+        description: Organic carbon content of biochar (fraction, e.g., 0.85)
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-gross-co2e-stored"
+        unit: tCO₂e
+        description: Gross CO₂ equivalent stored in biochar
+
+  parameters:
+    - name: name
+      description: "Human-readable name"
+      default: "Carbon Sequestration"
+    - name: mass_slug
+      description: "DPT slug for dry biochar mass"
+      required: true
+    - name: mass_unit
+      description: "Unit of mass input"
+      default: "t"
+    - name: carbon_content_slug
+      description: "DPT slug for organic carbon content (as fraction)"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the output slug"
+      default: "biochar"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: tCO₂e
+      operator: product
+      data_point_type: "calculated-{output_prefix}-gross-co2e-stored"
+      nexus_nodes_attributes:
+      - name: "Dry Biochar Mass"
+        output_unit: "{mass_unit}"
+        data_point_type: "{mass_slug}"
+      - name: "Organic Carbon Content"
+        output_unit: "%"
+        data_point_type: "{carbon_content_slug}"
+      - name: "CO₂/C Stoichiometric Factor"
+        output_unit: ""
+        constant: 3.667

@@ -1,0 +1,62 @@
+# Biochar Carbon Credit Model
+#
+# The final model in the biochar chain: takes upstream calculated values
+# (production emissions, feedstock emissions, end use emissions, dry mass)
+# and computes net carbon removal and issuable credits.
+#
+# Tree structure:
+#   Root 1: Gross CO₂e Stored [carbon-sequestration]
+#   Root 2: Durable CO₂e Stored [permanence-factor]
+#   Root 3: Net Carbon Removal [net-carbon-removal]
+#   Root 4: Issued Credits [credit-buffer]
+
+model:
+  id: biochar-carbon-credit
+  name: Biochar Carbon Credit
+  description: >-
+    End-to-end carbon credit calculation: gross sequestration from biochar
+    carbon content, permanence discount via H:Corg decay factor, net removal
+    (stored minus all lifecycle emissions), and final credit issuance after
+    buffer deduction.
+
+  components:
+    - component_id: carbon-sequestration
+      instance_id: gross-stored
+      params:
+        name: "Gross CO₂e Stored in Biochar"
+        mass_slug: "calculated-biochar-produced-dry"
+        mass_unit: "t"
+        carbon_content_slug: "biochar-organic-carbon-fraction"
+        output_prefix: "biochar"
+
+    - component_id: permanence-factor
+      instance_id: durable-stored
+      params:
+        name: "Durable Carbon Stored (after decay discount)"
+        gross_stored_slug: "calculated-biochar-gross-co2e-stored"
+        permanence_factor_slug: "biochar-permanence-factor"
+        output_prefix: "biochar"
+
+    - component_id: net-carbon-removal
+      instance_id: net-removal
+      params:
+        name: "Net Carbon Removal"
+        stored_slug: "calculated-biochar-durable-co2e-stored"
+        biomass_emissions_slug: "calculated-feedstock-sourcing-emissions"
+        production_emissions_slug: "calculated-biochar-production-emissions"
+        use_emissions_slug: "calculated-biochar-end-use-emissions"
+        output_prefix: "biochar"
+
+    - component_id: credit-buffer
+      instance_id: issued-credits
+      params:
+        name: "Issued CORCs (after 10% buffer)"
+        net_removal_slug: "calculated-biochar-net-removal"
+        buffer_fraction_slug: "puro-buffer-fraction"
+        output_prefix: "biochar"
+
+  tree:
+    - component: gross-stored
+    - component: durable-stored
+    - component: net-removal
+    - component: issued-credits

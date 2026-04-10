@@ -1,0 +1,70 @@
+component:
+  id: activity-emission-factor
+  name: Activity × Emission Factor
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: any
+    description: >-
+      Generic pattern for calculating emissions from an activity:
+      activity_quantity × emission_factor. Covers electricity, fuel combustion,
+      water use, lubricant use, staff travel, mailing, etc.
+      Optional unit conversion factor for cases where EF unit doesn't match
+      activity unit directly.
+    methodology:
+      - registry: any
+        requirement: "LCA process emissions: activity data × emission factor"
+
+  inputs:
+    event_data_points:
+      - slug_template: "{activity_slug}"
+        unit: "{activity_unit}"
+        description: Activity quantity (e.g., kWh used, gallons burned, miles driven)
+    static_data_points:
+      - slug_template: "{ef_slug}"
+        unit: "{ef_unit}"
+        description: Emission factor for this activity
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-emissions"
+        unit: tCO₂e
+        description: Emissions from this activity
+
+  parameters:
+    - name: activity_name
+      description: "Human-readable activity name (e.g., 'Electricity', 'Lubricant Use')"
+      required: true
+    - name: activity_slug
+      description: "DPT slug for the activity quantity"
+      required: true
+    - name: activity_unit
+      description: "Unit of the activity quantity"
+      required: true
+    - name: ef_slug
+      description: "DPT slug for the emission factor"
+      required: true
+    - name: ef_unit
+      description: "Unit of the emission factor"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the calculated output slug"
+      required: true
+    - name: should_aggregate
+      description: "Whether to sum activity across events in the period"
+      default: true
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "Emissions from {activity_name}"
+      output_unit: tCO₂e
+      operator: product
+      nexus_nodes_attributes:
+      - name: "{activity_name}"
+        output_unit: "{activity_unit}"
+        data_point_type: "{activity_slug}"
+        should_aggregate: true
+      - name: "EF - {activity_name}"
+        output_unit: "{ef_unit}"
+        data_point_type: "{ef_slug}"

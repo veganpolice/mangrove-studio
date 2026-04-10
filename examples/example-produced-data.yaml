@@ -1,0 +1,63 @@
+# Example input data for the Biochar Produced model
+# Two production events
+
+# Mass tracking
+tons-biochar-produced-wet:
+  - 50.0
+  - 60.0
+tons-biochar-produced-dry:
+  - 40.0
+  - 50.0
+
+# Embodied emissions amortization
+constant-equipment-and-material-embodied-emissions: 50000.0
+constant-embodied-emissions-amortization-rate: 10.0
+production---days-in-production-period: 30.0
+
+# Upstream reference (from feedstock sourcing model)
+calculated-feedstock-sourcing-emissions: 5.0
+
+# Electricity
+production-electricity-use-full-allocation:
+  - 100.0
+  - 150.0
+ef-electricity: 0.5
+
+# Lubricant
+production---lubricant-usage-gallon:
+  - 2.0
+  - 3.0
+ef-lubricant: 10.0
+
+# Stack (methane)
+production---methane-emissions-per-us-ton-feedstock:
+  - 0.1
+  - 0.15
+gwp-ch4-to-co2e: 28.0
+
+# Processing (blending with compost)
+ef-blending-with-compost: 5.0
+
+# Water
+water-added-to-biochar:
+  - 100.0
+  - 120.0
+ef-water: 0.001
+
+# Packaging
+constant-packaging-bags-used-per-day:
+  - 10.0
+  - 12.0
+ef-textile-bag-material: 2.0
+
+# Mailing
+production---usd-spent-on-mailing-samples:
+  - 50.0
+  - 30.0
+ef-mailing-per-usd: 0.01
+
+# Staff travel
+production---staff-travel-miles:
+  - 100.0
+  - 150.0
+ef-staff-travel-per-mile: 0.4

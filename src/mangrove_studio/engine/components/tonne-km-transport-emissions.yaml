@@ -1,0 +1,85 @@
+component:
+  id: tonne-km-transport-emissions
+  name: Tonne-km Transport Emissions
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: any
+    description: >-
+      Calculates transport emissions using the tonne-km method:
+      sum(distance × mass per event) × emission factor.
+      Used for feedstock delivery, biochar delivery, or any loaded freight.
+    methodology:
+      - registry: isometric
+        requirement: "Transport emissions based on loaded tonne-km and regional emission factors"
+
+  inputs:
+    event_data_points:
+      - slug_template: "{distance_slug}"
+        unit: mile
+        description: Distance per delivery event
+        aggregation: false
+        category: emissions
+        subcategory: fuel_emissions
+      - slug_template: "{mass_slug}"
+        unit: "U.S. ton"
+        description: Wet mass per delivery event
+        aggregation: false
+        category: emissions
+        subcategory: fuel_emissions
+    static_data_points:
+      - slug_template: "{ef_slug}"
+        unit: "gCO₂e/t.km"
+        description: Emission factor for freight transport
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{name_prefix}-transport-emissions"
+        unit: tCO₂e
+        description: Transport emissions from loaded freight
+
+  parameters:
+    - name: distance_slug
+      description: "DPT slug for delivery distance"
+      required: true
+    - name: mass_slug
+      description: "DPT slug for delivery mass"
+      required: true
+    - name: ef_slug
+      description: "DPT slug for the transport emission factor"
+      default: "ef-heavy-bulk-north-america"
+    - name: name_prefix
+      description: "Human-readable name prefix for node labels (e.g., 'Feedstock', 'Biochar')"
+      default: "Feedstock"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "Emissions from {name_prefix} transportation"
+      output_unit: tCO₂e
+      operator: product
+      nexus_nodes_attributes:
+      - name: "{name_prefix} delivered - tonne-km"
+        output_unit: tonne.kilometer
+        operator: summation
+        nexus_nodes_attributes:
+        - name: "{name_prefix} Delivered -tonne-km Product"
+          output_unit: tonne.kilometer
+          operator: product
+          should_aggregate: false
+          nexus_nodes_attributes:
+          - name: "{name_prefix} Delivery Distance"
+            output_unit: mile
+            data_point_type: "{distance_slug}"
+            category: emissions
+            subcategory: fuel_emissions
+            should_aggregate: false
+          - name: "{name_prefix} Delivery Wet Mass"
+            output_unit: "U.S. ton"
+            data_point_type: "{mass_slug}"
+            category: emissions
+            subcategory: fuel_emissions
+            should_aggregate: false
+      - name: EF - Transportation via Heavy Bulk Truck (North America)
+        output_unit: "gCO₂e/t.km"
+        data_point_type: "{ef_slug}"

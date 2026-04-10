@@ -1,0 +1,69 @@
+component:
+  id: fuel-combustion-emissions
+  name: Fuel Combustion Emissions
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: production
+    description: >-
+      Calculates emissions from fuel combustion (diesel, propane, natural gas).
+      Uses the activity × emission factor pattern but with fuel-specific naming
+      to distinguish from the generic activity-emission-factor component.
+      Handles both direct combustion CO₂ and indirect GHG (CH₄, N₂O) via
+      a single composite emission factor.
+    methodology:
+      - registry: isometric
+        requirement: "Energy Use Accounting Module — fuel combustion emissions"
+      - registry: puro
+        requirement: "E_production includes fuel combustion"
+
+  inputs:
+    event_data_points:
+      - slug_template: "{fuel_slug}"
+        unit: "{fuel_unit}"
+        description: Fuel quantity consumed per event
+    static_data_points:
+      - slug_template: "{ef_slug}"
+        unit: "{ef_unit}"
+        description: Composite emission factor for this fuel type
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{output_prefix}-fuel-emissions"
+        unit: tCO₂e
+        description: Emissions from fuel combustion
+
+  parameters:
+    - name: fuel_name
+      description: "Human-readable fuel name (e.g., 'Diesel', 'Propane')"
+      required: true
+    - name: fuel_slug
+      description: "DPT slug for fuel quantity"
+      required: true
+    - name: fuel_unit
+      description: "Unit of fuel quantity (e.g., 'gallon', 'L', 'therms')"
+      required: true
+    - name: ef_slug
+      description: "DPT slug for the emission factor"
+      required: true
+    - name: ef_unit
+      description: "Unit of the emission factor"
+      required: true
+    - name: output_prefix
+      description: "Prefix for the output slug"
+      required: true
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "Emissions from {fuel_name} combustion"
+      output_unit: tCO₂e
+      operator: product
+      nexus_nodes_attributes:
+      - name: "{fuel_name} consumed"
+        output_unit: "{fuel_unit}"
+        data_point_type: "{fuel_slug}"
+        should_aggregate: true
+      - name: "EF - {fuel_name}"
+        output_unit: "{ef_unit}"
+        data_point_type: "{ef_slug}"

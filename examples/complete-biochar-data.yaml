@@ -1,0 +1,52 @@
+# Example data for a complete biochar lifecycle model
+# Represents a small-scale biochar operation processing wood waste
+
+# Stage 1: Feedstock (3 deliveries)
+feedstock-mass-tonnes:
+  - 50.0
+  - 40.0
+  - 35.0
+
+# Stage 2: Production (2 production runs)
+biochar-produced-wet-tonnes:
+  - 30.0
+  - 25.0
+biochar-produced-dry-tonnes:
+  - 24.0
+  - 20.0
+
+# Production inputs (2 events matching production runs)
+electricity-kwh:
+  - 2000.0
+  - 1800.0
+diesel-litres:
+  - 50.0
+  - 45.0
+water-litres:
+  - 500.0
+  - 450.0
+days-in-period: 30.0
+
+# Equipment (static inputs)
+constant-equipment-embodied-emissions: 25000.0  # kgCO₂e total
+constant-amortization-years: 15.0  # years
+
+# Emission factors (static)
+ef-grid-electricity: 0.42     # kgCO₂e/kWh (US average)
+ef-diesel: 2.68               # kgCO₂e/L
+ef-water: 0.001               # kgCO₂e/L
+ef-heavy-truck: 0.1           # gCO₂e/t.km
+ef-application: 0.5           # kgCO₂e/t
+
+# Feedstock emissions (from upstream model or estimate)
+calculated-feedstock-emissions: 3.5  # tCO₂e
+
+# Stage 3: Delivery (2 delivery events)
+delivery-distance-km:
+  - 150.0
+  - 200.0
+
+# Stage 4: Biochar characterization (static)
+biochar-organic-carbon-fraction: 0.78  # 78% organic C
+permanence-factor-woolf: 0.87          # H:Corg=0.38 → 87% permanent
+buffer-fraction: 0.90                  # 10% buffer (Puro)

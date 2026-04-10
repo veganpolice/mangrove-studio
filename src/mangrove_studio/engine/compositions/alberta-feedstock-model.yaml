@@ -1,0 +1,22 @@
+# Alberta Biochar Feedstock Model — composed from 1 component
+#
+# Original: 13 lines. This composition: 1 component, 1 tree entry.
+
+model:
+  id: alberta-feedstock-sourcing
+  name: Feedstock Received
+  description: Simple sum of feedstock mass delivered.
+
+  components:
+    - component_id: mass-aggregation
+      instance_id: feedstock-received
+      params:
+        name: "Feedstock Received"
+        input_slug: "mass-feedstock-transported"
+        output_slug: "feedstock-received"
+        unit: "t"
+        category: "production"
+        subcategory: "Sourcing Activity"
+
+  tree:
+    - component: feedstock-received

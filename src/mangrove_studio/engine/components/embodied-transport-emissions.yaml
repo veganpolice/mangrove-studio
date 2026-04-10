@@ -1,0 +1,70 @@
+component:
+  id: embodied-transport-emissions
+  name: Embodied Transport Emissions
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: any
+    description: >-
+      Calculates embodied emissions from transport vehicles on a per-mile basis.
+      Simple form: sum(distance) × emission_factor.
+      Used for delivery vehicle manufacturing/maintenance emissions.
+    methodology:
+      - registry: isometric
+        requirement: "Include embodied emissions from transport vehicles"
+
+  inputs:
+    event_data_points:
+      - slug_template: "{prefix}-delivery-distance"
+        unit: mile
+        description: Delivery distance per event
+        category: emissions
+        subcategory: fuel_emissions
+    static_data_points:
+      - slug_template: "{ef_slug}"
+        unit: "{ef_unit}"
+        description: Embodied emissions factor per distance unit
+        category: emissions
+        subcategory: transport_emissions
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "calculated-{prefix}-embodied-transport-emissions"
+        unit: tCO₂e
+        description: Embodied emissions from transport vehicles
+
+  parameters:
+    - name: prefix
+      description: "Slug prefix for the delivery type (e.g., 'biochar', 'feedstock')"
+      default: "biochar"
+    - name: ef_slug
+      description: "Slug of the embodied emissions factor DPT"
+      default: "ef-biochar-transport-embodied"
+    - name: ef_unit
+      description: "Unit of the embodied emissions factor"
+      default: "gCO₂e/km"
+    - name: name_prefix
+      description: "Human-readable prefix for node names"
+      default: "Biochar"
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "Embodied Emissions {name_prefix} Transportation"
+      output_unit: tCO₂e
+      operator: product
+      nexus_nodes_attributes:
+      - name: "{name_prefix} Delivery Distance Total"
+        output_unit: mile
+        operator: summation
+        nexus_nodes_attributes:
+        - name: "{name_prefix} Delivery Distance"
+          output_unit: mile
+          data_point_type: "{prefix}-delivery-distance"
+          category: emissions
+          subcategory: fuel_emissions
+      - name: "EF - {name_prefix} transport embodied"
+        output_unit: "{ef_unit}"
+        data_point_type: "{ef_slug}"
+        category: emissions
+        subcategory: transport_emissions

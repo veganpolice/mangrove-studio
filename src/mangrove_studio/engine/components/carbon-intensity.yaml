@@ -1,0 +1,60 @@
+component:
+  id: carbon-intensity
+  name: Carbon Intensity
+  version: "1.0"
+
+  metadata:
+    pathway: any
+    stage: any
+    description: >-
+      Calculates carbon intensity as emissions divided by mass output.
+      Produces a tCO₂e/t ratio. Used as a summary metric that can be
+      passed downstream (e.g., produced CI feeds into delivered CI).
+
+  inputs:
+    upstream_references:
+      - slug_template: "{emissions_slug}"
+        unit: tCO₂e
+        description: Total emissions from this stage
+      - slug_template: "{mass_slug}"
+        unit: "{mass_unit}"
+        description: Mass output from this stage
+
+  outputs:
+    calculated_data_points:
+      - slug_template: "{output_slug}"
+        unit: "tCO₂e/t"
+        description: Carbon intensity (emissions per unit mass)
+
+  parameters:
+    - name: name
+      description: "Human-readable name (e.g., 'Biochar Produced Carbon Intensity')"
+      required: true
+    - name: emissions_slug
+      description: "DPT slug for the emissions input"
+      required: true
+    - name: mass_slug
+      description: "DPT slug for the mass input"
+      required: true
+    - name: mass_unit
+      description: "Unit of the mass input"
+      default: "t"
+    - name: output_slug
+      description: "DPT slug for the CI output"
+      required: true
+
+  node_tree:
+    nexus_nodes_attributes:
+    - name: "{name}"
+      output_unit: "tCO₂e/t"
+      operator: quotient
+      data_point_type: "{output_slug}"
+      nexus_nodes_attributes:
+      - name: "Total Emissions"
+        output_unit: tCO₂e
+        order: 0
+        data_point_type: "{emissions_slug}"
+      - name: "Mass Output"
+        output_unit: "{mass_unit}"
+        order: 1
+        data_point_type: "{mass_slug}"

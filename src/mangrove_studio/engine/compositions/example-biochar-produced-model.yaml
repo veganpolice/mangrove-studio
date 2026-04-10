@@ -1,0 +1,204 @@
+# Example Biochar Produced Model
+#
+# Demonstrates a production model with multiple emission sources.
+#
+# Tree structure:
+#   Root 1: Biochar produced wet (monthly) [mass-aggregation]
+#   Root 2: Production Emissions (allocated to biochar) [product]
+#   │  ├── Production emissions [summation]
+#   │  │  ├── embodied-emissions-amortization
+#   │  │  ├── upstream ref: feedstock sourcing emissions [inline leaf]
+#   │  │  ├── activity-emission-factor (electricity)
+#   │  │  ├── activity-emission-factor (lubricant)
+#   │  │  ├── activity-emission-factor (stack/methane)
+#   │  │  ├── activity-emission-factor (processing)
+#   │  │  ├── activity-emission-factor (water)
+#   │  │  ├── activity-emission-factor (packaging)
+#   │  │  ├── activity-emission-factor (mailing)
+#   │  │  └── activity-emission-factor (staff travel)
+#   │  └── Biochar Produced dry summation [inline, for product denominator]
+#   Root 3: Biochar Produced (dry) (Monthly) [mass-aggregation]
+#   Root 4: Biochar Produced Carbon Intensity [carbon-intensity]
+
+model:
+  id: example-biochar-produced
+  name: Biochar Production
+  description: >-
+    Production mass tracking + process emissions (electricity, lubricant,
+    stack, processing, water, packaging, mailing, staff travel) + embodied
+    equipment amortization + upstream feedstock sourcing.
+
+  components:
+    # Mass tracking
+    - component_id: mass-aggregation
+      instance_id: biochar-wet-monthly
+      params:
+        name: "Biochar produced (wet) (Monthly)"
+        input_slug: "tons-biochar-produced-wet"
+        output_slug: "biochar-produced-wet-monthly"
+        unit: "t"
+        category: "production"
+        subcategory: "production_activity"
+
+    - component_id: mass-aggregation
+      instance_id: biochar-dry-monthly
+      params:
+        name: "Biochar Produced (dry) (Monthly)"
+        input_slug: "tons-biochar-produced-dry"
+        output_slug: "biochar-produced-dry"
+        unit: "t"
+        category: "production"
+        subcategory: "characterization"
+
+    # Embodied emissions amortization
+    - component_id: embodied-emissions-amortization
+      instance_id: equipment-ee
+      params:
+        name: "Embodied Emissions Equipment & Materials"
+        ee_slug: "constant-equipment-and-material-embodied-emissions"
+        amortization_rate_slug: "constant-embodied-emissions-amortization-rate"
+        days_slug: "production---days-in-production-period"
+        output_prefix: "production"
+
+    # Process emissions
+    - component_id: activity-emission-factor
+      instance_id: electricity-emissions
+      params:
+        activity_name: "electricity"
+        activity_slug: "production-electricity-use-full-allocation"
+        activity_unit: "kW.h"
+        ef_slug: "ef-electricity"
+        ef_unit: "kgCO₂e/kWh"
+        output_prefix: "electricity"
+
+    - component_id: activity-emission-factor
+      instance_id: lubricant-emissions
+      params:
+        activity_name: "lubricant use"
+        activity_slug: "production---lubricant-usage-gallon"
+        activity_unit: "gallon"
+        ef_slug: "ef-lubricant"
+        ef_unit: "kgCO₂e/kg"
+        output_prefix: "lubricant"
+
+    - component_id: activity-emission-factor
+      instance_id: stack-emissions
+      params:
+        activity_name: "stack"
+        activity_slug: "production---methane-emissions-per-us-ton-feedstock"
+        activity_unit: "kgCO₂e/U.S. ton"
+        ef_slug: "gwp-ch4-to-co2e"
+        ef_unit: ""
+        output_prefix: "stack"
+
+    - component_id: activity-emission-factor
+      instance_id: processing-emissions
+      params:
+        activity_name: "biochar processing"
+        activity_slug: "tons-biochar-produced-wet"
+        activity_unit: "U.S. ton"
+        ef_slug: "ef-blending-with-compost"
+        ef_unit: "kgCO₂e/U.S. ton"
+        output_prefix: "processing"
+
+    - component_id: activity-emission-factor
+      instance_id: water-emissions
+      params:
+        activity_name: "water use"
+        activity_slug: "water-added-to-biochar"
+        activity_unit: "gallon"
+        ef_slug: "ef-water"
+        ef_unit: "kgCO₂e/kg"
+        output_prefix: "water"
+
+    - component_id: activity-emission-factor
+      instance_id: packaging-emissions
+      params:
+        activity_name: "packaging"
+        activity_slug: "constant-packaging-bags-used-per-day"
+        activity_unit: ""
+        ef_slug: "ef-textile-bag-material"
+        ef_unit: "kgCO₂e/tonne"
+        output_prefix: "packaging"
+
+    - component_id: activity-emission-factor
+      instance_id: mailing-emissions
+      params:
+        activity_name: "mailing of samples"
+        activity_slug: "production---usd-spent-on-mailing-samples"
+        activity_unit: ""
+        ef_slug: "ef-mailing-per-usd"
+        ef_unit: ""
+        output_prefix: "mailing"
+
+    - component_id: activity-emission-factor
+      instance_id: staff-travel-emissions
+      params:
+        activity_name: "staff travel"
+        activity_slug: "production---staff-travel-miles"
+        activity_unit: "mile"
+        ef_slug: "ef-staff-travel-per-mile"
+        ef_unit: "kgCO₂e/mile"
+        output_prefix: "staff-travel"
+
+    # Carbon intensity
+    - component_id: carbon-intensity
+      instance_id: produced-ci
+      params:
+        name: "Biochar Produced Carbon Intensity"
+        emissions_slug: "calculated-biochar-production-emissions"
+        mass_slug: "calculated-biochar-produced-dry"
+        mass_unit: "t"
+        output_slug: "biochar-produced-ci"
+
+  tree:
+    # Root 1: Wet mass aggregation
+    - component: biochar-wet-monthly
+
+    # Root 2: Production emissions (allocated to biochar)
+    - node:
+        name: Production Emissions (allocated to biochar)
+        output_unit: tCO₂e
+        data_point_type: calculated-biochar-production-emissions
+        operator: product
+      children:
+        - node:
+            name: Production emissions
+            output_unit: tCO₂e
+            operator: summation
+          children:
+            - component: equipment-ee
+            # Upstream reference to feedstock sourcing (inline leaf)
+            - node:
+                name: Feedstock Sourcing Emissions
+                output_unit: tCO₂e
+                data_point_type: calculated-feedstock-sourcing-emissions
+                category: emissions
+                subcategory: fuel_emissions
+            - component: electricity-emissions
+            - component: lubricant-emissions
+            - component: stack-emissions
+            - component: processing-emissions
+            - component: water-emissions
+            - component: packaging-emissions
+            - component: mailing-emissions
+            - component: staff-travel-emissions
+        # Second child of product: dry mass for the period
+        - node:
+            name: Biochar Produced (dry) (Monthly)
+            output_unit: t
+            order: 1
+            operator: summation
+          children:
+            - node:
+                name: Biochar Produced (dry) (Monthly) (U.S. ton)
+                output_unit: "U.S. ton"
+                data_point_type: tons-biochar-produced-dry
+                category: production
+                subcategory: characterization
+
+    # Root 3: Dry mass aggregation (separate calculated output)
+    - component: biochar-dry-monthly
+
+    # Root 4: Carbon intensity
+    - component: produced-ci

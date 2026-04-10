@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mangrove.climate/schemas/component-definition/v1",
+  "title": "Mangrove Component Definition",
+  "description": "Schema for reusable, parameterizable carbon accounting model components that generate valid Mangrove YAML node trees.",
+  "type": "object",
+  "required": ["component"],
+  "additionalProperties": false,
+  "properties": {
+    "component": {
+      "type": "object",
+      "required": ["id", "name", "version", "metadata", "inputs", "outputs", "parameters", "node_tree"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$",
+          "description": "Unique component identifier, kebab-case"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable component name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$",
+          "description": "Semantic version (major.minor)"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        },
+        "inputs": {
+          "$ref": "#/$defs/inputs"
+        },
+        "outputs": {
+          "$ref": "#/$defs/outputs"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameter"
+          },
+          "description": "Configurable parameters that vary per project instantiation"
+        },
+        "node_tree": {
+          "$ref": "#/$defs/node_tree",
+          "description": "The calculation tree template with parameter placeholders"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["pathway", "stage", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "pathway": {
+          "type": "string",
+          "description": "Carbon removal pathway (e.g., biochar, dac, enhanced-weathering)"
+        },
+        "stage": {
+          "type": "string",
+          "description": "Model stage within the pathway (e.g., sourcing, production, delivery)"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this component calculates and why"
+        },
+        "methodology": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["registry", "requirement"],
+            "additionalProperties": false,
+            "properties": {
+              "registry": {
+                "type": "string",
+                "description": "Registry or standard (e.g., isometric, puro, verra)"
+              },
+              "requirement": {
+                "type": "string",
+                "description": "Specific methodology requirement this component satisfies"
+              }
+            }
+          }
+        }
+      }
+    },
+    "slug_template_entry": {
+      "type": "object",
+      "required": ["slug_template", "unit", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "slug_template": {
+          "type": "string",
+          "description": "DPT slug with optional {parameter} placeholders"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Expected unit for this data point"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this data point represents"
+        },
+        "aggregation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this DPT aggregates across events (should_aggregate)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Optional Mangrove category tag"
+        },
+        "subcategory": {
+          "type": "string",
+          "description": "Optional Mangrove subcategory tag"
+        },
+        "is_static": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this is a static (project-level) data point"
+        },
+        "default_value": {
+          "type": "number",
+          "description": "Optional default value for static DPTs"
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event_data_points": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug_template_entry" },
+          "description": "DPTs from event types (per-event input data)"
+        },
+        "static_data_points": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug_template_entry" },
+          "description": "Static project-level DPTs (emission factors, constants)"
+        },
+        "upstream_references": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug_template_entry" },
+          "description": "Calculated DPTs from upstream components/models"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "required": ["calculated_data_points"],
+      "additionalProperties": false,
+      "properties": {
+        "calculated_data_points": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug_template_entry" },
+          "minItems": 1,
+          "description": "Calculated DPTs this component produces"
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "required": ["name", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Parameter name used in {placeholders}"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {
+          "description": "Default value if not specified at instantiation"
+        },
+        "options": {
+          "type": "array",
+          "items": {},
+          "description": "If set, parameter value must be one of these"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this parameter must be explicitly provided"
+        }
+      }
+    },
+    "node_tree": {
+      "type": "object",
+      "required": ["nexus_nodes_attributes"],
+      "additionalProperties": false,
+      "properties": {
+        "nexus_nodes_attributes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/node" },
+          "minItems": 1
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Node display name (may contain {parameter} placeholders)"
+        },
+        "output_unit": {
+          "type": "string",
+          "description": "Target unit for this node's calculation"
+        },
+        "operator": {
+          "type": "string",
+          "description": "Calculation operator: summation, product, quotient, difference, or keisan expression"
+        },
+        "data_point_type": {
+          "type": "string",
+          "description": "DPT slug reference (may contain {parameter} placeholders)"
+        },
+        "constant": {
+          "oneOf": [
+            {"type": "number"},
+            {"type": "string", "pattern": "^\\{\\w+\\}$"}
+          ],
+          "description": "Hardcoded constant value (or {parameter} placeholder)"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Sibling ordering (important for quotient and difference)"
+        },
+        "should_aggregate": {
+          "type": "boolean",
+          "description": "Whether to aggregate across events"
+        },
+        "category": {
+          "type": "string"
+        },
+        "subcategory": {
+          "type": "string"
+        },
+        "nexus_nodes_attributes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/node" },
+          "description": "Child nodes"
+        }
+      }
+    }
+  }
+}
